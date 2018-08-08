@@ -1,7 +1,8 @@
 ###################################################################################################
 # Name        : ListMaker.py
-# Author(s)   : Chris Lloyd
+# Author(s)   : Chris Lloyd, Andrew Southwick
 # Description : A program to create lists
+# Github Link : https://github.com/Clloyd3267/List-Maker/
 ###################################################################################################
 
 # External Imports
@@ -9,60 +10,7 @@ from pathlib import Path # Used for file manipulation
 import openpyxl # For reading in verses
 from operator import itemgetter
 import xlsxwriter # Used to write quizzes to excel files
-import re # Used for pattern matching
 import time # Used to time exception speed
-# from tkinter import ttk
-# from tkinter import *
-
-# TK Stuff
-#
-#
-# -
-#
-# from tkinter import *
-# import tkinter as tk
-#
-# class MainApp(tk.Tk):
-#
-#     def __init__(self):
-#         tk.Tk.__init__(self)
-#
-#         #container = tk.Frame(self)
-#         #container.master.rowconfigure(0, weight=1)
-#         #container.master.columnconfigure(0, weight=1)
-#         #container.grid(sticky=W + E + N + S)
-#
-#         #root = Tk()
-#         menubar = Menu(self)
-#         self.config(menu=menubar)
-#         filemenu = Menu(menubar, tearoff=0)
-#         menubar.add_cascade(label="File", menu=filemenu)
-#         filemenu.add_command(label="Select Question File", command=self.Question)
-#         filemenu.add_command(label = "Select Unique Words File", command = self.Question)
-#         filemenu.add_command(label = "Select Material File", command = self.Question)
-#         filemenu.add_separator()
-#
-#         filemenu.add_command(label="Exit", command=self.quit)
-#
-#         Label(self, text="# of Quizzes: ").grid(row=1, column=1)
-#         NumQuizzes = IntVar(value=1)
-#         Entry(self, width=3, textvariable=NumQuizzes).grid(sticky=W, row=1, column=2, padx=5, pady=5)
-#
-#         Label(self, text="Range: ").grid(sticky=E, row=2, column=1)
-#         DefaultRange = StringVar(value="1 Corinthians,1,1-2 Corinthians,13,14")
-#         Entry(self, width=40, textvariable=DefaultRange).grid(row=2, column=2, padx=5, pady=5)
-#
-#         Button(self, text="Create Quizzes",
-#                command=lambda: self.GenerateQuizzes(DefaultRange, NumQuizzes)).grid(
-#             sticky=W, row=4, column=1, padx=5, pady=5, columnspan=2)
-#
-#     app = MainApp()
-#     # app.minsize(300, 100)
-#     # app.title("Quiz Maker - Bible Quizzing")
-#     # app.wm_iconbitmap('../Data Files/myicon.ico')
-#     app.mainloop()
-#
-# -
 
 class ListMaker:
     """
@@ -531,7 +479,7 @@ class ListMaker:
         # Add About worksheet
         ################################################################################################################
         worksheet = workbook.add_worksheet("About")
-        worksheet.set_zoom(75)
+        worksheet.set_zoom(175)
 
         # Add Header cell format
         header = workbook.add_format({'font_size': 18, 'bold': 1})
@@ -788,12 +736,6 @@ class ListMaker:
 if __name__ == "__main__":
     start_time = time.time()
 
-    # root = Tk()
-    # pb = ttk.Progressbar(root, orient = "horizontal", length = 200, mode = "determinate", maximum = "7")
-    # pb.pack()
-    # pb["value"] = pb["value"] + 1
-    # root.mainloop()
-
     lM = ListMaker()
     lM.importVerses()
     lM.createConcordance()
@@ -803,6 +745,5 @@ if __name__ == "__main__":
     lM.createFtvs()
     lM.createFts()
     lM.exportLists()
-
 
     print("Done in: {:.2f}s".format(time.time() - start_time))
