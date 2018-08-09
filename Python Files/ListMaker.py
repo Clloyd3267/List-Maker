@@ -11,6 +11,38 @@ import openpyxl # For reading in verses
 from operator import itemgetter
 import xlsxwriter # Used to write quizzes to excel files
 import time # Used to time exception speed
+from tkinter import filedialog
+import tkinter as tk
+
+class MainApp(tk.Tk):
+    def __init__(self):
+        tk.Tk.__init__(self)
+
+        VersesFile = ''
+
+        ftypes = [('Excel files', '*.xlsx'), ('All files', '*')]
+        dlg = filedialog.Open(filetypes=ftypes,
+                                         initialdir = r'..\Data Files', initialfile = r'Verses.xlsx')
+
+        VersesFile = dlg.show()
+        print(VersesFile)
+
+        lM = ListMaker()
+        lM.importVerses()
+        lM.createConcordance()
+        lM.createUniqueWords()
+        lM.createTwoWordPhrases()
+        lM.createThreeWordPhrases()
+        lM.createFtvs()
+        lM.createFts()
+
+        #ftypes = [('Excel files', '*.xlsx'), ('All files', '*')]
+        ExportFile = filedialog.asksaveasfilename(filetypes=ftypes, initialdir = '../', initialfile="Quizzes.xlsx")
+        print(ExportFile)
+        lM.exportLists()
+
+        print("Done in: {:.2f}s".format(time.time() - start_time))
+
 
 class ListMaker:
     """
@@ -736,14 +768,18 @@ class ListMaker:
 if __name__ == "__main__":
     start_time = time.time()
 
-    lM = ListMaker()
-    lM.importVerses()
-    lM.createConcordance()
-    lM.createUniqueWords()
-    lM.createTwoWordPhrases()
-    lM.createThreeWordPhrases()
-    lM.createFtvs()
-    lM.createFts()
-    lM.exportLists()
+    app = MainApp()
+    app.minsize(300, 200)
+    app.mainloop()
 
-    print("Done in: {:.2f}s".format(time.time() - start_time))
+    #lM = ListMaker()
+    #lM.importVerses()
+    #lM.createConcordance()
+    #lM.createUniqueWords()
+    #lM.createTwoWordPhrases()
+    #lM.createThreeWordPhrases()
+    #lM.createFtvs()
+    #lM.createFts()
+    #lM.exportLists()
+
+    #print("Done in: {:.2f}s".format(time.time() - start_time))
