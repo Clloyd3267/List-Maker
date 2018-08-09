@@ -13,6 +13,7 @@ The lists it creates are:
 * Two and Three word Phrases (Alpha).
 * List of first five words of all verses (FTVs).
 * List of first five words of all valid verse subsections (FTs).
+* List of valid Quotations (SITs).
 
 Future updates:
 * Valid CVR and CR Phrases
@@ -41,7 +42,7 @@ Upon run, the program will ask for an Excel document contining the material. It 
 * Verse Text => The actual Verse Text.
 
 #### Running the program
-To run the program, run the Python file.
+To run the program, run the Python file. It will then ask for the input file and the output file.
 ```
 ListMaker.py
 ```

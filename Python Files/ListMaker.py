@@ -8,40 +8,58 @@
 # External Imports
 from pathlib import Path # Used for file manipulation
 import openpyxl # For reading in verses
-from operator import itemgetter
+from operator import itemgetter # Used for sorting lists
 import xlsxwriter # Used to write quizzes to excel files
 import time # Used to time exception speed
-from tkinter import filedialog
-import tkinter as tk
+from tkinter import filedialog, messagebox # Used for GUI design
+import tkinter as tk # Used for GUI design
+
 
 class MainApp(tk.Tk):
     def __init__(self):
         tk.Tk.__init__(self)
 
-        VersesFile = ''
-
-        ftypes = [('Excel files', '*.xlsx'), ('All files', '*')]
-        dlg = filedialog.Open(filetypes=ftypes,
+        self.withdraw() # To only show the dialogs
+        self.wm_iconbitmap('../Data Files/myicon.ico')
+        # Input material file dialog
+        fTypes = [('Excel files', '*.xlsx')]
+        dlg = filedialog.Open(title = "Choose the input material file", filetypes=fTypes,
                                          initialdir = r'..\Data Files', initialfile = r'Verses.xlsx')
+        versesFile = dlg.show()
+        if versesFile == "":
+            messagebox.showerror("Error", "Error 7 => No Input file!!!")
+            return
 
-        VersesFile = dlg.show()
-        print(VersesFile)
+        # Output lists save as file dialog
+        date = time.strftime("%Y_%m_%d")
+        outFileName = date + "_Lists.xlsx"
 
+        exportFile = filedialog.asksaveasfilename(title = "Choose the output file", filetypes = fTypes,
+                                                  initialdir = '../', initialfile = outFileName)
+        if exportFile == "":
+            messagebox.showerror("Error", "Error 7 => No Output file!!!")
+            return
+
+        start_time = time.time()
         lM = ListMaker()
-        lM.importVerses()
-        lM.createConcordance()
-        lM.createUniqueWords()
-        lM.createTwoWordPhrases()
-        lM.createThreeWordPhrases()
-        lM.createFtvs()
-        lM.createFts()
-
-        #ftypes = [('Excel files', '*.xlsx'), ('All files', '*')]
-        ExportFile = filedialog.asksaveasfilename(filetypes=ftypes, initialdir = '../', initialfile="Quizzes.xlsx")
-        print(ExportFile)
-        lM.exportLists()
-
+        status = lM.importVerses(versesFile)
+        if status != 0: messagebox.showerror("Error", status); return
+        status = lM.createConcordance()
+        if status != 0: messagebox.showerror("Error", status); return
+        status = lM.createUniqueWords()
+        if status != 0: messagebox.showerror("Error", status); return
+        status = lM.createTwoWordPhrases()
+        if status != 0: messagebox.showerror("Error", status); return
+        status = lM.createThreeWordPhrases()
+        if status != 0: messagebox.showerror("Error", status); return
+        status = lM.createFtvs()
+        if status != 0: messagebox.showerror("Error", status); return
+        status = lM.createFts()
+        if status != 0: messagebox.showerror("Error", status); return
+        status = lM.exportLists(exportFile)
+        if status != 0: messagebox.showerror("Error", status); return
         print("Done in: {:.2f}s".format(time.time() - start_time))
+        self.quit() # Quit the main app
 
 
 class ListMaker:
@@ -59,6 +77,7 @@ class ListMaker:
             crPhrases(dictionary of word objects) A variable to store all of the cr phrases.
             ftvs(array of verse objects) A variable to store all of the ftvs.
             fts(array of partial verse objects) A variable to store all of the fts.
+            sits(array of situation objects): A variable to store all of the sits.
         """
 
     def __init__(self):
@@ -76,6 +95,7 @@ class ListMaker:
         self.crPhrases = {}
         self.ftvs = []
         self.fts = []
+        self.sits = []
 
     ####################################################################################################################
     # Main Funcs
@@ -106,7 +126,7 @@ class ListMaker:
         try:
             book = openpyxl.load_workbook(versesFilePath)
         except IOError:
-            return "Error => Verses file does not exist!!!"
+            return "Error 1 => Verses file does not exist!!!"
 
         sheet = book.worksheets[0]  # Open the first sheet
 
@@ -122,24 +142,17 @@ class ListMaker:
                 else:
                     verse.append(str(cell.value).strip())
                     valid = True
-            # CDL=> Number error codes!!
+
             if not valid:
                 continue
             if not verse[0]:
-                return "Error => No Book!!! " + verse[0] + " " + verse[1] + ":" + verse[2] + " " + verse[3]
+                return "Error 2 => No Book!!! " + verse[0] + " " + verse[1] + ":" + verse[2] + " " + verse[3]
             if not verse[1]:
-                return "Error => No Chapter!!! " + verse[0] + " " + verse[1] + ":" + verse[2] + " " + verse[3]
+                return "Error 3 => No Chapter!!! " + verse[0] + " " + verse[1] + ":" + verse[2] + " " + verse[3]
             if not verse[2]:
-                return "Error => No Verse Number!!! " + verse[0] + " " + verse[1] + ":" + verse[2] + " " + verse[3]
+                return "Error 4 => No Verse Number!!! " + verse[0] + " " + verse[1] + ":" + verse[2] + " " + verse[3]
             if not verse[3]:
-                return "Error => No Verse!!! " + verse[0] + " " + verse[1] + ":" + verse[2] + " " + verse[3]
-
-            # Replace special characters
-            # verse[3] = verse[3].replace("“", "\"")
-            # verse[3] = verse[3].replace("”", "\"")
-            # verse[3] = verse[3].replace("‘", "\'")
-            # verse[3] = verse[3].replace("’", "\'")
-            # verse[3] = verse[3].replace("—", "-") CDL=> Remove later
+                return "Error 5 => No Verse!!! " + verse[0] + " " + verse[1] + ":" + verse[2] + " " + verse[3]
 
             # Split verse
             verse.append(self.splitVerse(verse[3]))
@@ -241,7 +254,8 @@ class ListMaker:
             i = 0
             while i != len(verse[4]) - 1:
                 twoWordPhrase = (str(verse[4][i][0]) + " " + str(verse[4][i + 1][0])).upper()
-                if twoWordPhrase not in notUniquePhrases:
+                if twoWordPhrase not in notUniquePhrases and twoWordPhrase.split()[0].upper() not in \
+                self.uniqueWords and twoWordPhrase.split()[1].upper() not in self.uniqueWords:
                     if twoWordPhrase in self.twoWordPhrases:
                         if self.twoWordPhrases[twoWordPhrase] != verse[0:3]:
                             del self.twoWordPhrases[twoWordPhrase]
@@ -275,7 +289,13 @@ class ListMaker:
             while i != len(verse[4]) - 2:
                 threeWordPhrase = (str(verse[4][i][0]) + " " + str(verse[4][i + 1][0]) + " " +
                                    str(verse[4][i + 2][0])).upper()
-                if threeWordPhrase not in notUniquePhrases:
+
+                if threeWordPhrase not in notUniquePhrases and \
+                " ".join(threeWordPhrase.split()[0:2]).upper() not in self.twoWordPhrases and \
+                " ".join(threeWordPhrase.split()[1:3]).upper() not in self.twoWordPhrases and \
+                threeWordPhrase.split()[0].upper() not in self.uniqueWords and \
+                threeWordPhrase.split()[1].upper() not in self.uniqueWords and \
+                threeWordPhrase.split()[2].upper() not in self.uniqueWords:
                     if threeWordPhrase in self.threeWordPhrases:
                         if self.threeWordPhrases[threeWordPhrase] != verse[0:3]:
                             del self.threeWordPhrases[threeWordPhrase]
@@ -485,6 +505,35 @@ class ListMaker:
 
         return 0  # Return with no errors
 
+    def createSits(self):
+        """
+        Function to create a list of all valid situations.
+
+        Returns:
+            (0): No errors, (Anything else): Errors.
+
+        Debug Code: "S" or "s" or "On"
+        """
+
+        for verse in self.allVerses:
+            for i, char in enumerate(verse[3]):
+                if char in ["“", "‘"]:
+                    quotation = verse[3][i:]
+                    if quotation != "":
+                        self.sits.append([quotation[1:], verse[0], verse[1], verse[2]])
+
+        # Sort Sits alphabetically
+        self.sits = sorted(self.sits, key = itemgetter(0, 1, 2, 3))
+
+        # Print SITs if debug enabled
+        if "S" in self.debug or "s" in self.debug or self.debug == "On":
+            print("")
+            print("=== Situation / Quotations (" + str(len(self.sits)) + ") ===")
+            for verse in self.sits:
+                print(verse[0] + " - " + verse[1] + " " + verse[2] + ":" + verse[3])
+
+        return 0  # Return with no errors
+
     def exportLists(self, outputFilename = "Lists.xlsx"):
         """
         Function to export lists.
@@ -691,10 +740,30 @@ class ListMaker:
             worksheet.write_rich_string("D" + str(i), *self.boldUniqueWords(verse[0], bold))
             i += 1
 
+        ################################################################################################################
+        # Add SITs worksheet
+        ################################################################################################################
+        worksheet = workbook.add_worksheet("SITs")
+
+        # Add headers
+        worksheet.write("A1", "Book", bold)
+        worksheet.write("B1", "Chapter", bold)
+        worksheet.write("C1", "Verse", bold)
+        worksheet.write("D1", "Quotation", bold)
+
+        # Add actual data
+        i = 2
+        for verse in self.sits:
+            worksheet.write("A" + str(i), verse[1])
+            worksheet.write("B" + str(i), verse[2])
+            worksheet.write("C" + str(i), verse[3])
+            worksheet.write_rich_string("D" + str(i), *self.boldUniqueWords(verse[0], bold))
+            i += 1
+
         try:
             workbook.close()  # Close the workbook
         except IOError:
-            return "Error => Output file open!!!"
+            return "Error 6 => Output file open!!!"
 
         return 0  # Return with no errors
 
@@ -720,8 +789,8 @@ class ListMaker:
             if (character.isalnum()) or \
             (character == "-") or \
             (character in ["’" , "'"] and partOfWord[0] != "" and
-            ((verseText[i - 5:i].lower() == "jesus") or
-            (i < len(verseText) and verseText[i - 1].isalnum() and verseText[i + 1].isalnum()))):
+            (i != 0 and (verseText[i - 5:i].lower() == "jesus") or
+            (i != len(verseText) - 1 and i != 0 and verseText[i - 1].isalnum() and verseText[i + 1].isalnum()))):
                 if partOfWord[0] == "":
                     partOfWord[1] = i
                 partOfWord[0] += character
@@ -766,20 +835,8 @@ class ListMaker:
 
 
 if __name__ == "__main__":
-    start_time = time.time()
-
     app = MainApp()
-    app.minsize(300, 200)
-    app.mainloop()
 
-    #lM = ListMaker()
-    #lM.importVerses()
-    #lM.createConcordance()
-    #lM.createUniqueWords()
-    #lM.createTwoWordPhrases()
-    #lM.createThreeWordPhrases()
-    #lM.createFtvs()
-    #lM.createFts()
-    #lM.exportLists()
-
-    #print("Done in: {:.2f}s".format(time.time() - start_time))
+    # Don't need main loop because it is a run then close
+    # app.minsize(300, 200)
+    # app.mainloop()
