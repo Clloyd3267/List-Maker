@@ -1,5 +1,5 @@
 # List-Maker
-Python program used for creating C&amp;MA Bible Quizzing Lists
+Python program used for creating C&amp;MA Bible Quizzing Lists.
 
 #### About
 This program is designed to assist in question writing for C&MA Bible Quizzing
@@ -35,7 +35,7 @@ You can also install the packages using [Pip](https://pip.pypa.io/en/latest/quic
 * pip install tkinter
 
 #### Input files
-Upon run, the program will ask for an Excel document contining the material. It should have the following columns (with headers):
+Upon run, the program will ask for an Excel document containing the material. It should have the following columns (with headers):
 * Book => The Book name of verse.
 * Chapter => The Chapter number of verse.
 * Verse => The Verse number of verse.

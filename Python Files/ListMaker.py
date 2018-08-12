@@ -67,17 +67,17 @@ class ListMaker:
         A class to create different useful lists.
 
         Attributes:
-            debug(bool): A debug variable to enable / disable debug outputs.
-            allVerses(array of verse objects) A variable to store all of the verses.
-            concordance(dictionary of word objects) A variable to store the concordance.
-            uniqueWords(dictionary of word objects) A variable to store all of the unique words.
-            twoWordPhrases(dictionary of word objects) A variable to store all of the two word phrases.
-            threeWordPhrases(dictionary of word objects) A variable to store all of the three word phrases.
-            cvrPhrases(dictionary of word objects) A variable to store all of the cvr phrases.
-            crPhrases(dictionary of word objects) A variable to store all of the cr phrases.
-            ftvs(array of verse objects) A variable to store all of the ftvs.
-            fts(array of partial verse objects) A variable to store all of the fts.
-            sits(array of situation objects): A variable to store all of the sits.
+            debug (bool): A debug variable to enable / disable debug outputs.
+            allVerses (array of verse objects) A variable to store all of the verses.
+            concordance (dictionary of word objects) A variable to store the concordance.
+            uniqueWords (dictionary of word objects) A variable to store all of the unique words.
+            twoWordPhrases (dictionary of word objects) A variable to store all of the two word phrases.
+            threeWordPhrases (dictionary of word objects) A variable to store all of the three word phrases.
+            cvrPhrases (dictionary of word objects) A variable to store all of the cvr phrases.
+            crPhrases (dictionary of word objects) A variable to store all of the cr phrases.
+            ftvs (array of verse objects) A variable to store all of the ftvs.
+            fts (array of partial verse objects) A variable to store all of the fts.
+            sits (array of situation objects): A variable to store all of the sits.
         """
 
     def __init__(self):
@@ -104,14 +104,14 @@ class ListMaker:
         """
         Function to import verses from excel file.
 
-        Debug Code (All Verses): "A" or "a" or "On"
-        Debug Code (All Verses Split): "W" or "w" or "On"
-
         Parameters:
-            versesFileName (str): The input filename for verse list.
+            versesFileName (str): The input filename for verse list  (Defaults to "Verses.xlsx").
 
         Returns:
             (0): No errors, (Anything else): Errors.
+
+        Debug Code (All Verses): "A" or "a" or "On"
+        Debug Code (All Verses Split): "W" or "w" or "On"
         """
 
         # Create the path for Verse file
