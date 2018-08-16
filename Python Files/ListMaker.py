@@ -35,7 +35,8 @@ class MainApp(tk.Tk):
         outFileName = date + "_Lists.xlsx"
 
         exportFile = filedialog.asksaveasfilename(title = "Choose the output file", filetypes = fTypes,
-                                                  initialdir = '../', initialfile = outFileName)
+                                                  initialdir = Path.home() / "Documents", initialfile = outFileName)
+
         if exportFile == "":
             messagebox.showerror("Error", "Error 7 => No Output file!!!")
             return
@@ -59,6 +60,7 @@ class MainApp(tk.Tk):
         status = lM.exportLists(exportFile)
         if status != 0: messagebox.showerror("Error", status); return
         print("Done in: {:.2f}s".format(time.time() - start_time))
+        messagebox.showinfo("Finished!", "Lists have been generated!")
         self.quit() # Quit the main app
 
 
