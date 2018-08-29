@@ -57,11 +57,12 @@ class MainApp(tk.Tk):
         if status != 0: messagebox.showerror("Error", status); return
         status = lM.createFts()
         if status != 0: messagebox.showerror("Error", status); return
+        status = lM.createSits()
+        if status != 0: messagebox.showerror("Error", status); return
         status = lM.exportLists(exportFile)
         if status != 0: messagebox.showerror("Error", status); return
         print("Done in: {:.2f}s".format(time.time() - start_time))
         messagebox.showinfo("Finished!", "Lists have been generated!")
-        self.quit() # Quit the main app
 
 
 class ListMaker:
