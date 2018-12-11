@@ -766,6 +766,8 @@ class ListMaker:
             worksheet.write_rich_string("E" + str(i), *self.boldUniqueWords(verse[0] + "...", bold))
             worksheet.write("F" + str(i), verse[8])
 
+
+
             i += 1
 
         #i = 2
