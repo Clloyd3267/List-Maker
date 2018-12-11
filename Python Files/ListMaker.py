@@ -357,6 +357,7 @@ class ListMaker:
         # Add all verses to FTV list
         for verse in self.allVerses:
             firstFiveWords = []
+            RestOfVerse = []
             i = 0
             for i, word in enumerate(verse[4]):
                 if i > 4:
@@ -364,7 +365,11 @@ class ListMaker:
                     break
                 else:
                     firstFiveWords.append(word[0].upper())
-            self.ftvs.append(["", firstFiveWords, i, verse[0], verse[1], verse[2], verse[3], verse[4]])
+            #for verse in self.allVerses:
+            numOfWords = verse[3].split(" ")
+            NumLen = len(numOfWords)
+            RestOfVerse = ' '.join(numOfWords[5:NumLen + 1])
+            self.ftvs.append(["", firstFiveWords, i, verse[0], verse[1], verse[2], verse[3], verse[4], RestOfVerse])
 
         # Sort the FTV list alphabetically
         self.ftvs = sorted(self.ftvs, key = itemgetter(1, 3, 4, 5))
@@ -406,7 +411,7 @@ class ListMaker:
                 while end != len(self.ftvs[currentLine][6]) and self.ftvs[currentLine][6][end] != " ":
                     end += 1
                 afterMarker = self.ftvs[currentLine][6][mid:end]
-                self.ftvs[currentLine][0] = beforeMarker + "/" + afterMarker
+                self.ftvs[currentLine][0] = beforeMarker + " »" + afterMarker
 
             currentLine += 1 # Go to next line
 
@@ -549,9 +554,9 @@ class ListMaker:
         """
 
         # Create the output file
-        if outputFilename == "Lists.xlsx":
+        if outputFilename == "Lists_FTV_Q.xlsx":
             date = time.strftime("%Y_%m_%d")
-            fileName = Path("../" + date + "_Lists.xlsx")
+            fileName = Path("../" + date + "_Lists_FTV_Q.xlsx")
             workbook = xlsxwriter.Workbook(fileName)
         else:
             workbook = xlsxwriter.Workbook(outputFilename)
@@ -705,7 +710,30 @@ class ListMaker:
             i += 1
 
         ################################################################################################################
-        # Add FTVs worksheet
+        # Add Quotes worksheet
+        ################################################################################################################
+        worksheet = workbook.add_worksheet("Quotes")
+
+        # Add headers
+        worksheet.write("A1", "Book", bold)
+        worksheet.write("B1", "Chapter", bold)
+        worksheet.write("C1", "Verse", bold)
+        worksheet.write("D1", "Question", bold)
+        worksheet.write("E1", "Answer", bold)
+
+        # Add actual data
+        i = 2
+        for verse in self.allVerses:
+            worksheet.write("A" + str(i), verse[0])
+            worksheet.write("B" + str(i), verse[1])
+            worksheet.write("C" + str(i), verse[2])
+            worksheet.write_rich_string("D" + str(i), "Quote " + verse[0] + " chapter " +
+                                        verse[1] + " verse " + verse[2] + ".")
+            worksheet.write_rich_string("E" + str(i), *self.boldUniqueWords(verse[3], bold))
+            i += 1
+
+        ################################################################################################################
+        # Add FTVs With Answer worksheet
         ################################################################################################################
         worksheet = workbook.add_worksheet("FTVs")
 
@@ -713,16 +741,18 @@ class ListMaker:
         worksheet.write("A1", "Book", bold)
         worksheet.write("B1", "Chapter", bold)
         worksheet.write("C1", "Verse", bold)
-        worksheet.write("D1", "Verse Start", bold)
-
+        worksheet.write("D1", "Question", bold)
+        worksheet.write("E1", "Answer", bold)
         # Add actual data
         i = 2
         for verse in self.ftvs:
             worksheet.write("A" + str(i), verse[3])
             worksheet.write("B" + str(i), verse[4])
             worksheet.write("C" + str(i), verse[5])
-            worksheet.write_rich_string("D" + str(i), *self.boldUniqueWords(verse[0], bold))
+            worksheet.write_rich_string("D" + str(i), *self.boldUniqueWords(verse[0] + "...", bold))
+            worksheet.write("E" + str(i), verse[8])
             i += 1
+
         ################################################################################################################
         # Add FTs worksheet
         ################################################################################################################
@@ -839,7 +869,3 @@ class ListMaker:
 
 if __name__ == "__main__":
     app = MainApp()
-
-    # Don't need main loop because it is a run then close
-    # app.minsize(300, 200)
-    # app.mainloop()
