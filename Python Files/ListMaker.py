@@ -729,7 +729,7 @@ class ListMaker:
             worksheet.write("C" + str(i), verse[2])
             worksheet.write_rich_string("D" + str(i), "Quote " + verse[0] + " chapter " +
                                         verse[1] + " verse " + verse[2] + ".")
-            worksheet.write_rich_string("E" + str(i), *self.boldUniqueWords(verse[3], bold))
+            worksheet.write_rich_string("E" + str(i), *self.boldUniqueWords(self.upperFirstAlpha(verse[3]), bold))
             i += 1
 
         ################################################################################################################
@@ -749,7 +749,7 @@ class ListMaker:
             worksheet.write("A" + str(i), verse[3])
             worksheet.write("B" + str(i), verse[4])
             worksheet.write("C" + str(i), verse[5])
-            worksheet.write_rich_string("D" + str(i), *self.boldUniqueWords(verse[0] + "...", bold))
+            worksheet.write_rich_string("D" + str(i), *self.boldUniqueWords(self.upperFirstAlpha(verse[0]) + "...", bold))
             worksheet.write("E" + str(i), verse[8])
             i += 1
 
@@ -864,6 +864,27 @@ class ListMaker:
                 start = len(word[0]) + word[1]
         if start != len(myString):
             result.append(myString[start:])
+        return result
+
+    def upperFirstAlpha(self, myString):
+        """
+        Function to capitalize the first actual letter in a string.
+
+        Parameters:
+            myString (str): The input string to be capitalized.
+
+        Returns:
+            result (str): The output string with the first letter capitalized.
+        """
+
+        result = ""
+        status = False
+        for char in myString:
+            if not status and char.isalpha():
+                char = char.upper()
+                status = True
+            result += char
+
         return result
 
 
